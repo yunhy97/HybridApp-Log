@@ -1,0 +1,91 @@
+<template>
+    <div class="page" data-name="signin">
+      <div class="navbar">
+        <div class="navbar-inner sliding">
+          <div class="left">
+            <a href="#" class="link back">
+              <i class="icon icon-back"></i>
+              <span class="if-not-md">Back</span>
+            </a>
+          </div>
+          <div class="title">보기</div>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="card">
+          <div class="card-content card-content-padding">
+            <p>idx : {{idx}}</p>
+            <p>employee_name : {{employee_name}}</p>
+            <p>employee_salary : {{employee_salary}}</p>
+            <p>employee_age : {{employee_age}}</p>
+            <p>profile_image : {{profile_image}}</p>
+            <p>created : {{created}}</p>
+            <p>updated : {{updated}}</p>
+          </div>
+        </div>
+        <div class="block">
+          <div class="row">
+            <div class="col">
+              <a href="/edit/" data-context='{{context}}' class="button button-fill">수정</a>
+            </div>
+            <div class="col">
+              <a @click="delete" class="button button-fill color-red">삭제</a>
+            </div>
+          </div>
+        </div> 
+         <!-- {{idx}} //idx는 인덱스의 토큰값을 출력
+        {{this.employee_name}}
+        {{this.employee_salary}}
+        {{this.employee_age}}-->   
+      </div>
+    </div>
+    </template>
+    <script>
+    export default {
+      data: function () { 
+        return {
+          data: null,
+          context: null,
+        }
+      },
+      methods: {
+        delete: function() {
+          var self = this;  
+          var app = self.$app;  
+          var jwt = window.localStorage.getItem('jwt');
+    
+          app.request({
+            url: 'https://api.ibetter.kr/api/employee',
+            method: 'DELETE',
+            dataType: 'json',
+            headers: {
+              'Authorization': 'Bearer ' + jwt
+            },
+            data: {
+              employee_idx: self.data.idx
+            },
+            success: function(data, status, xhr){
+              if (data.code == '11') {
+                app.views.main.router.navigate('/list/', {reloadCurrent: true});
+              }
+            },
+          });
+        }
+      },
+      on: {
+        pageInit: function (e, page) {
+          var self = this;  
+          var app = self.$app;  
+          var jwt = window.localStorage.getItem('jwt');
+    
+          console.log(page.route.context)
+          self.$setState({                    
+            data: page.route.context,
+            context: JSON.stringify(page.route.context),
+          }); 
+    
+        }
+      }
+    };
+    </script>
+    

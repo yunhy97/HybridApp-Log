@@ -1,0 +1,76 @@
+<template>
+    <div class="page" data-name="list">
+      <div class="navbar">
+        <div class="navbar-inner sliding">
+          <div class="left">
+            <a href="#" class="link back">
+              <i class="icon icon-back"></i>
+              <span class="if-not-md">Back</span>
+            </a>
+          </div>
+          <div class="title">목록</div>
+        </div>
+      </div>
+      <div class="page-content">
+          {{#if data}}
+          <!-- data 보여주기 -->
+          <div class="list links-list">
+            <ul>
+              {{#each data}}
+              <li>
+                <a href="/view/" data-context='{{this.context}}' class="item-link item-content">
+                  {{this.employee_name}}
+                </a>
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+          {{else}}
+          <!-- Otherwise show preloader -->
+          <div class="block block-strong text-align-center">
+            <div class="preloader"></div>
+          </div>
+          {{/if}}
+      </div>
+    </div>
+    </template>
+    <script>
+    export default {
+      data: function () { 
+        return {
+          data: null,
+        }
+      },
+      on: {
+        pageInit: function (e, page) {
+          var self = this;  
+          var app = self.$app;  
+          var jwt = window.localStorage.getItem('jwt');
+
+          app.request({
+            url: 'https://api.ibetter.kr/api/employees',
+            method: 'GET',
+            dataType: 'json',
+            headers: {
+            'Authorization': 'Bearer ' + jwt
+          },
+            success: function(data, status, xhr){
+              var dataList = data.data;
+
+              for(var i=0; i<dataList.length; i++) {
+                dataList[i].context = JSON.stringify(dataList[i]); 
+                //불러온 데이터를 context를 통해 데이터를 한번 가공하는 역할, framework7의 규칙
+                //JSON구조를 하나의 문자열로 변환한다.
+               
+              }
+    
+              self.$setState({
+                data: dataList,
+              });
+            },
+          });
+        }
+      }
+    };
+    </script>
+    

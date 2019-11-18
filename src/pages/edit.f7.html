@@ -1,0 +1,117 @@
+<template>
+<div class="page" data-name="signin">
+  <div class="navbar">
+    <div class="navbar-inner sliding">
+      <div class="left">
+        <a href="#" class="link back">
+          <i class="icon icon-back"></i>
+          <span class="if-not-md">Back</span>
+        </a>
+
+      </div>
+      <div class="title">수정</div>
+    </div>
+  </div>
+  <div class="page-content">
+      <form class="list" id="form-edit">
+          <ul>
+            <li>
+              <div class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">이름</div>
+                  <div class="item-input-wrap">
+                    <input type="text" name="employee_name" value="{{employee_name}}" placeholder="이름을 입력하세요">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">연봉</div>
+                  <div class="item-input-wrap">
+                    <input type="text" name="employee_salary" value="{{employee_salary}}" placeholder="연봉을 입력하세요">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">나이</div>
+                  <div class="item-input-wrap">
+                    <input type="text" name="employee_age" value="{{employee_age}}" placeholder="나이를 입력하세요">
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            
+          </ul>
+        </form>
+        <div class="block block-strong row">
+          <a @click="edit" class="button button-fill" >수정</a>
+        </div>
+  </div>
+</div>
+</template>
+<script>
+    export default {
+      data: function () { 
+        return {
+          data: null,
+        }
+      },
+      methods: {
+        edit: function() {
+          var self = this;
+          var app = self.$app;
+          var formEditData = app.form.convertToData('#form-edit');
+          var jwt = window.localStorage.getItem('jwt');
+    
+          formEditData.employee_idx = self.data.idx;
+    
+          if (!formEditData.employee_name) {
+            app.dialog.alert('이름을 입력해주세요');
+          } else if (!formEditData.employee_salary) {
+            app.dialog.alert('연봉을 입력해주세요');
+          } else if (!formEditData.employee_age) {
+            app.dialog.alert('나이를 입력해주세요');
+          } else {
+            app.request({
+              url: 'https://api.ibetter.kr/api/employee',
+              method: 'PUT',
+              dataType: 'json',
+              data: formEditData,
+              headers: {
+                'Authorization': 'Bearer ' + jwt
+              },
+              beforeSend: function (xhr) {
+                app.dialog.preloader('처리중');
+              },
+              complete: function (xhr, status) {
+                app.dialog.close();
+              },
+              success: function(data, status, xhr){ 
+                if (data.code == '11') {
+                  app.views.main.router.navigate('/list/', {reloadCurrent: true});
+                }
+              },
+            });
+          }
+        }
+      },
+      on: {
+        pageInit: function (e, page) {
+          var self = this;  
+          var app = self.$app;  
+          var jwt = window.localStorage.getItem('jwt');
+    
+          self.$setState({                    
+            data: page.route.context,
+          }); 
+        }
+      }
+    };
+    </script>
+    

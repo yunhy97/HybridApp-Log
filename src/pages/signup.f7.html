@@ -1,0 +1,132 @@
+<template>
+<div class="page" data-name="signup">
+  <div class="navbar">
+    <div class="navbar-inner sliding">
+      <div class="left">
+        <a href="#" class="link back">
+          <i class="icon icon-back"></i>
+          <span class="if-not-md">Back</span>
+        </a>
+
+      </div>
+      <div class="title">사용자 등록</div>
+    </div>
+  </div>
+  <div class="page-content">
+      <form class="list" id="form-signup">
+          <ul>
+            <li>
+              <div class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">아이디</div>
+                  <div class="item-input-wrap">
+                    <input type="text" name="userid" placeholder="아이디를 입력하세요">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">비밀번호</div>
+                  <div class="item-input-wrap">
+                    <input type="password" name="password" placeholder="비밀번호를 입력하세요">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">이름</div>
+                  <div class="item-input-wrap">
+                    <input type="text" name="name" placeholder="이름을 입력하세요">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">E-mail</div>
+                  <div class="item-input-wrap">
+                    <input type="email" name="email" placeholder="이메일 주소를 입력하세요">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+                <div class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Phone</div>
+                    <div class="item-input-wrap">
+                      <input type="number" name="phone" placeholder="전화번호를 입력하세요">
+                    </div>
+                  </div>
+                </div>
+              </li>
+          </ul>
+        </form>
+        <div class="block block-strong row">
+          <a @click="signup" class="button button-fill" >사용자 등록</a>
+        </div>
+  </div>
+</div>
+</template>
+<script>
+export default {
+  methods: {
+    signup: function() {
+      var self = this; //보여주는 화면
+      var app = self.$app;
+      var formSignupData = app.form.convertToData('#form-signup');
+      console.log(formSignupData);
+      if (!formSignupData.name){
+        app.dialog.alert('이름을 입력해주세요');
+      } else if (!formSignupData.email) {
+        app.dialog.alert('이메일을 입력해주세요');
+      }else if (!formSignupData.phone) {
+        app.dialog.alert('전화번호를 입력해주세요');
+      } else if (!formSignupData.userid) {
+        app.dialog.alert('아이디를 입력해주세요');
+      } else if (!formSignupData.password) {
+        app.dialog.alert('비밀번호를 입력해주세요');
+      } else {
+        app.request({
+          url: 'https://api.ibetter.kr/api/signup',
+          method: 'POST',
+          dataType: 'json',
+          data: formSignupData,
+          headers: {
+            'Authorization': 'Bearer 17ed2160-3b77-44f9-8c3e-2f8319e1a60a'
+          },
+          beforeSend: function (xhr) {
+            app.dialog.preloader('처리중');
+          },
+          complete: function (xhr, status) {
+            app.dialog.close();
+          },
+          success: function(data, status, xhr){           
+            console.log(data);
+                       
+            if (data.code == '11') {
+              app.dialog.alert('가입되었습니다.');
+              app.views.main.router.navigate('/', {reloadCurrent: true});
+            } else if (data.code == '21') {
+              app.dialog.alert('이미 사용중인 아이디입니다.');
+            }
+          },
+        });
+
+        /*
+        setTimeout(function () {
+          app.dialog.close();
+          app.dialog.alert('가입되었습니다');
+          //app.router.navigate({ path: '/signin/' });
+        }, 2000);
+        */
+      }
+    }
+  }
+};
+</script>
